@@ -103,6 +103,12 @@ public class Purchase {
 
         System.err.println("checkpoint");
 
+        conn.setDoOutput(true);
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("Accept", "application/json");
+        conn.setRequestMethod("POST");
+        conn.connect();
+
         OutputStreamWriter wr= new OutputStreamWriter(conn.getOutputStream());
         wr.write(post.toString());
 
