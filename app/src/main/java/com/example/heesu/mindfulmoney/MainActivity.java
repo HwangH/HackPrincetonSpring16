@@ -29,18 +29,22 @@ import com.reimaginebanking.api.java.NessieResultsListener;
 import com.reimaginebanking.api.java.NessieType;
 import com.reimaginebanking.api.java.models.Customer;
 import com.reimaginebanking.api.java.models.Purchase;
+import com.reimaginebanking.api.java.models.RequestResponse;
 
 
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit.client.Response;
+
 public class MainActivity extends AppCompatActivity {
 
-    private static String key = "key=f42694af69bea32185ab6de531cff8ab";
+    private static String key = "f42694af69bea32185ab6de531cff8ab";
     NessieClient nessieClient;
-    private static String customer = "56c66be7a73e492741508223";
-    private static String exampleVendor = "56c66be7a73e492741508223";
+    private static String customer = "56c66be6a73e492741507536";
+    private static String customerCard = "56fef93d480cf02f0f88a56d";
+    private static String exampleVendor = "56c66be6a73e492741507624";
 
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
@@ -64,47 +68,45 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 1; i < 10; i++) {
             Purchase.Builder nB = new Purchase.Builder();
-            nB.status("pending");
-            nB.merchant(exampleVendor);
-            nB.description("for java");
-            nB.purchase_date("2016-04-12");
-            nB.amount(15+i);
-            Purchase p = nB.build();
-            nessieClient.createPurchase(customer, p, new NessieResultsListener() {
-                @Override
-                public void onSuccess(Object result, NessieException e) {
-                    if (e == null) {
-                        //There is no error, do whatever you need here.
-                        // Cast the result object to the type that you are requesting and you are good to go
-                        System.err.println("test1");
-                    } else {
-                        //There was an error. Handle it here
-                        Log.e("Error", e.toString());
-                    }
+            Purchase p = nB.amount(i + 0.01)
+                    .description("for java")
+                    .medium("balance")
+                    .purchase_date("2016-04-02")
+                    .status("pending")
+                    .merchant(exampleVendor)
+                    .build();
+            nessieClient.createPurchase(customerCard, p, new NessieResultsListener() {
+                    @Override
+                    public void onSuccess(Object result, NessieException e) {
+                    System.err.println("success creating purchase!");
                 }
             });
+
+
         }
 
+        System.err.println("this is 5");
+
+
         ArrayList<Purchase> buys = new ArrayList<Purchase>();
-        nessieClient.getPurchases(customer, new NessieResultsListener(){
+        nessieClient.getPurchases(customerCard, new NessieResultsListener() {
             @Override
-            public void onSuccess(Object result, NessieException e){
-                if(e == null){
+            public void onSuccess(Object result, NessieException e) {
+                if (e == null) {
                     //There is no error, do whatever you need here.
                     // Cast the result object to the type that you are requesting and you are good to go
                     setBuys((ArrayList<Purchase>) result);
-                }
-                else {
+                } else {
                     //There was an error. Handle it here
-                   Log.e("Error", e.toString());
+                    Log.e("Error", e.toString());
                 }
             }
         });
         if (buys.size() > 0) System.err.println("non-zero arraylist");
-
-
+        System.err.println("hi");
+        System.err.println(buys.size());
         //Creates the list of purchase history.
         LinearLayout myRoot = (LinearLayout) findViewById(R.id.root);
         LinearLayout list = new LinearLayout(this);
