@@ -31,13 +31,14 @@ public class DisplayStats extends AppCompatActivity {
         String message = intent.getStringExtra(MainActivity.EXTRA_VENDOR);
         TextView textView = (TextView) findViewById(R.id.stats_text);
         StringBuilder yourAverage = new StringBuilder();
-        yourAverage.append("Your average purchase from VENDOR cost: \n"+message);
+        yourAverage.append("Your average purchase from VENDOR cost: \n" + message);
         textView.setText(yourAverage.toString());
         textView.setTextColor(Color.WHITE);
 
 
         TextView allData = (TextView) findViewById(R.id.all_data);
-        allData.setText("The average consumer's purchase from VENDOR costs: \n");
+        String average = intent.getStringExtra(MainActivity.EXTRA_AVERAGE);
+        allData.setText("The average consumer's purchase from VENDOR costs: " + average+"\n");
         allData.setTextColor(Color.WHITE);
 
 

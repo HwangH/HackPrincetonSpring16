@@ -17,28 +17,46 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
 
+    private static String key = "key=26919f14786c1d9c548f0e653e67c78d";
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
 
-    public final static String EXTRA_VENDOR = "com.mycompany.myfirstapp.VENDOR";
+    public final static String EXTRA_VENDOR = "com.example.heesu.mindfulmoney.VENDOR";
+    public final static String EXTRA_AVERAGE = "com.example.heesu.mindfulmoney.AVERAGE";
+    public static String average;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ArrayList<Purchases> allPurchases = new ArrayList<Purchases>();
+        String purchases;
+        try {
+            purchases = Purchase.getPurchase_Account(key);
+            PurchasesList make = new PurchasesList(purchases);
+             allPurchases = make.getList();
+        } catch (Exception ex) {
+            System.err.println(ex);
+        }
+
+        average = "" + 5;
+
+
         //Creates the list of purchase history.
         LinearLayout myRoot = (LinearLayout) findViewById(R.id.root);
         LinearLayout list = new LinearLayout(this);
         list.setOrientation(LinearLayout.VERTICAL);
-        for (int i = 0; i < 100; i++) {
+        for (Purchases x : allPurchases) {
             TextView newText = (TextView) new TextView(this);
             StringBuilder purchase = new StringBuilder();
-            purchase.append("\nDate: \n");
-            purchase.append("Cost: \n");
-            purchase.append("Purchased from: \n");
+            purchase.append("\nDate: "+ x.purchase_date +"\n");
+            purchase.append("Cost: " + x.amount + "\n");
+            purchase.append("Purchased from: " + x.merchant_id + "\n");
             newText.setText(purchase.toString());
             newText.setTextColor(Color.WHITE);
 
@@ -47,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onClick(View view) {
                     Intent newPage = new Intent(MainActivity.this, DisplayStats.class);
                     newPage.putExtra(EXTRA_VENDOR, ((TextView) view).getText());
+                    newPage.putExtra(EXTRA_AVERAGE, average);
                     startActivity(newPage);
                 }
             });
@@ -62,17 +81,9 @@ public class MainActivity extends AppCompatActivity {
         myRoot.addView(list);
 
         //formatting
-         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getApplicationContext().getResources().getColor(R.color.colorPrimary)));
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getApplicationContext().getResources().getColor(R.color.colorPrimary)));
 
-        //sets up the navigation drawer.
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
-        // Set the adapter for the list view
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_list_item, mPlanetTitles));
-        // Set the list's click listener
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
     }
 
