@@ -52,17 +52,6 @@ public class MainActivity extends AppCompatActivity {
     public final static String EXTRA_VENDOR = "com.example.heesu.mindfulmoney.VENDOR";
     public final static String EXTRA_AVERAGE = "com.example.heesu.mindfulmoney.AVERAGE";
     public static String average;
-    public static ArrayList<Purchase> buys = new ArrayList<Purchase>();
-
-    private void setBuys(ArrayList<Purchase> buy){
-        int i = buy.size();
-        if (i == 0) return;
-        for (int j = 0; j < i; j++) {
-            buys.add(buy.get(j));
-        }
-
-
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,77 +75,61 @@ public class MainActivity extends AppCompatActivity {
             nessieClient.createPurchase(customerCard, p, new NessieResultsListener() {
                     @Override
                     public void onSuccess(Object result, NessieException e) {
-                        if (e == null) {
-                            //There is no error, do whatever you need here.
-                            // Cast the result object to the type that you are requesting and you are good to go
-                            System.err.println("hihi");
-                        } else {
-                            //There was an error. Handle it here
-                            Log.e("Error", e.toString());
-                            System.err.println("byebye");
+                        if (e == null) { }
+                        else { //There was an error. Handle it here
+                             Log.e("Error", e.toString());
                         }
                     }
             });
-
-
         }
 
-        System.err.println("this is 5");
 
 
-        ArrayList<Purchase> buys = new ArrayList<Purchase>();
         nessieClient.getPurchases(customerCard, new NessieResultsListener() {
             @Override
             public void onSuccess(Object result, NessieException e) {
                 if (e == null) {
-                    //There is no error, do whatever you need here.
-                    // Cast the result object to the type that you are requesting and you are good to go
-                    System.err.println(((List<Purchase>) result).size());
-                    setBuys((ArrayList<Purchase>) result);
+                    List<Purchase> a = (List<Purchase>) result;
+                    //Creates the list of purchase history.
+                    LinearLayout myRoot = (LinearLayout) findViewById(R.id.root);
+                    LinearLayout list = new LinearLayout(MainActivity.this);
+                    list.setOrientation(LinearLayout.VERTICAL);
+                    for (Purchase x : a) {
+                        System.err.println("entering loop");
+                        System.err.println(x.toString());
+                        TextView newText = (TextView) new TextView(MainActivity.this);
+                        StringBuilder purchase = new StringBuilder();
+                        purchase.append("\nDate: " + x.getPurchase_date() + "\n");
+                        purchase.append("Cost: " + x.getAmount() + "\n");
+                        purchase.append("Purchased from: " + x.getMerchant_id() + "\n");
+                        newText.setText(purchase.toString());
+                        newText.setTextColor(Color.WHITE);
 
+                        newText.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Intent newPage = new Intent(MainActivity.this, DisplayStats.class);
+                                newPage.putExtra(EXTRA_VENDOR, ((TextView) view).getText());
+                                newPage.putExtra(EXTRA_AVERAGE, average);
+                                startActivity(newPage);
+                            }
+                        });
+                        list.addView(newText);
+
+                        View dividerLine = new View(MainActivity.this);
+                        dividerLine.setLayoutParams(new LinearLayout.LayoutParams(
+                                LayoutParams.MATCH_PARENT, 2));
+                        dividerLine.setBackgroundColor(Color.WHITE);
+                        list.addView(dividerLine);
+
+                    }
+                    myRoot.addView(list);
                 } else {
                     //There was an error. Handle it here
                     Log.e("Error", e.toString());
                 }
             }
         });
-        System.err.println("hi");
-        System.err.println(buys.size());
-        //Creates the list of purchase history.
-        LinearLayout myRoot = (LinearLayout) findViewById(R.id.root);
-        LinearLayout list = new LinearLayout(this);
-        list.setOrientation(LinearLayout.VERTICAL);
-        for (Purchase x : buys) {
-            System.err.println("entering loop");
-            System.err.println(x.toString());
-            TextView newText = (TextView) new TextView(this);
-            StringBuilder purchase = new StringBuilder();
-            purchase.append("\nDate: "+ x.getPurchase_date() +"\n");
-            purchase.append("Cost: " + x.getAmount() + "\n");
-            purchase.append("Purchased from: " + x.getMerchant_id() + "\n");
-            newText.setText(purchase.toString());
-            newText.setTextColor(Color.WHITE);
-
-            newText.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent newPage = new Intent(MainActivity.this, DisplayStats.class);
-                    newPage.putExtra(EXTRA_VENDOR, ((TextView) view).getText());
-                    newPage.putExtra(EXTRA_AVERAGE, average);
-                    startActivity(newPage);
-                }
-            });
-            list.addView(newText);
-
-            View dividerLine = new View(this);
-            dividerLine.setLayoutParams(new LinearLayout.LayoutParams(
-                    LayoutParams.MATCH_PARENT, 2));
-            dividerLine.setBackgroundColor(Color.WHITE);
-            list.addView(dividerLine);
-
-        }
-        myRoot.addView(list);
-        System.err.println("lastcheckpoint");
 
         //formatting
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getApplicationContext().getResources().getColor(R.color.colorPrimary)));
