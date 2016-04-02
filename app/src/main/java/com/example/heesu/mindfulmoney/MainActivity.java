@@ -52,10 +52,16 @@ public class MainActivity extends AppCompatActivity {
     public final static String EXTRA_VENDOR = "com.example.heesu.mindfulmoney.VENDOR";
     public final static String EXTRA_AVERAGE = "com.example.heesu.mindfulmoney.AVERAGE";
     public static String average;
-    public static ArrayList<Purchase> buys;
+    public static ArrayList<Purchase> buys = new ArrayList<Purchase>();
 
     private void setBuys(ArrayList<Purchase> buy){
-        buys = buy;
+        int i = buy.size();
+        if (i == 0) return;
+        for (int j = 0; j < i; j++) {
+            buys.add(buy.get(j));
+        }
+
+
     }
 
     @Override
@@ -80,8 +86,16 @@ public class MainActivity extends AppCompatActivity {
             nessieClient.createPurchase(customerCard, p, new NessieResultsListener() {
                     @Override
                     public void onSuccess(Object result, NessieException e) {
-                    System.err.println("success creating purchase!");
-                }
+                        if (e == null) {
+                            //There is no error, do whatever you need here.
+                            // Cast the result object to the type that you are requesting and you are good to go
+                            System.err.println("hihi");
+                        } else {
+                            //There was an error. Handle it here
+                            Log.e("Error", e.toString());
+                            System.err.println("byebye");
+                        }
+                    }
             });
 
 
@@ -97,14 +111,15 @@ public class MainActivity extends AppCompatActivity {
                 if (e == null) {
                     //There is no error, do whatever you need here.
                     // Cast the result object to the type that you are requesting and you are good to go
+                    System.err.println(((List<Purchase>) result).size());
                     setBuys((ArrayList<Purchase>) result);
+
                 } else {
                     //There was an error. Handle it here
                     Log.e("Error", e.toString());
                 }
             }
         });
-        if (buys.size() > 0) System.err.println("non-zero arraylist");
         System.err.println("hi");
         System.err.println(buys.size());
         //Creates the list of purchase history.
@@ -112,6 +127,8 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout list = new LinearLayout(this);
         list.setOrientation(LinearLayout.VERTICAL);
         for (Purchase x : buys) {
+            System.err.println("entering loop");
+            System.err.println(x.toString());
             TextView newText = (TextView) new TextView(this);
             StringBuilder purchase = new StringBuilder();
             purchase.append("\nDate: "+ x.getPurchase_date() +"\n");
@@ -139,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
         myRoot.addView(list);
+        System.err.println("lastcheckpoint");
 
         //formatting
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getApplicationContext().getResources().getColor(R.color.colorPrimary)));
