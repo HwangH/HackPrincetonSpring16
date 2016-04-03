@@ -46,9 +46,6 @@ public class MainActivity extends AppCompatActivity {
 
     public final static String EXTRA_VENDOR = "com.example.heesu.mindfulmoney.VENDOR";
     public final static String EXTRA_CUSTOMER = "com.example.heesu.mindfulmoney.CUSTOMER";
-    public final static String EXTRA_PAYER_ID = "com.example.heesu.mindfulmoney.PAYER";
-    public final static String SINGLE_AVERAGE = "com.example.heesu.mindfulmoney.SINGLEAVERAGE";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
                     }
             });
         }
+
         nessieClient.getMerchants(new NessieResultsListener() {
             @Override
             public void onSuccess(Object result, NessieException e) {
@@ -103,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
 
                                 ListView test = (ListView) findViewById(R.id.left_drawer);
                                 ArrayList<Merchant> copy = (ArrayList<Merchant>) test.getTag();
-
                                 for (int i = a.size()-1; i >= 0; i--) {
                                     Purchase x = a.get(i);
                                     Merchant merch = getMerchantName(copy, x.getMerchant_id());
@@ -155,9 +152,9 @@ public class MainActivity extends AppCompatActivity {
 
     public Merchant getMerchantName(ArrayList<Merchant> merchants, String merchId) {
         for (Merchant x : merchants) {
-            if (x.get_id() == merchId) return x;
+            if (x.get_id().equals(merchId)) return x;
         }
-        return merchants.get(1);
+        return null;
     }
 
     @Override

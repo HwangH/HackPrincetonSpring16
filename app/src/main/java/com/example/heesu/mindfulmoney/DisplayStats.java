@@ -64,7 +64,7 @@ public class DisplayStats extends AppCompatActivity {
                     float sum = 0;
                     long count = 0;
                     for (Purchase x : a) {
-                        if (x.getMerchant_id() == merch.get_id()) {
+                        if (x.getMerchant_id().equals(merch.get_id())) {
                             sum += x.getAmount();
                             count++;
                         }
@@ -73,8 +73,6 @@ public class DisplayStats extends AppCompatActivity {
 
                     TextView test = (TextView) findViewById(R.id.stats_text);
                     test.setTag(indivAverage);
-
-                    System.err.println(merch.toString());
 
                     nessieClient.getPurchasem(merch.get_id(), new NessieResultsListener() {
                         @Override
