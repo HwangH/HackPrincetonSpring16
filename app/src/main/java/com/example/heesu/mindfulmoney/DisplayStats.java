@@ -10,11 +10,32 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.reimaginebanking.api.java.NessieClient;
+import com.reimaginebanking.api.java.NessieException;
+import com.reimaginebanking.api.java.NessieResultsListener;
+import com.reimaginebanking.api.java.models.Merchant;
+import com.reimaginebanking.api.java.models.Purchase;
+import com.reimaginebanking.api.java.requests.NessieService;
+
+import java.util.List;
+
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+
 public class DisplayStats extends AppCompatActivity {
+
+    public Merchant merch;
+    NessieClient nessieClient = NessieClient.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,31 +44,87 @@ public class DisplayStats extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getApplicationContext().getResources().getColor(R.color.colorPrimary)));
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getApplicationContext().getResources().getColor(R.color.colorAccent)));
+
         Intent intent = getIntent();
-        String message = intent.getStringExtra(MainActivity.EXTRA_VENDOR);
-        TextView textView = (TextView) findViewById(R.id.stats_text);
-        StringBuilder yourAverage = new StringBuilder();
-        yourAverage.append("Your average purchase from VENDOR cost: \n" + message);
-        textView.setText(yourAverage.toString());
-        textView.setTextColor(Color.WHITE);
+        String v = intent.getStringExtra(MainActivity.EXTRA_VENDOR);
+        Gson gs = new Gson();
+        merch = gs.fromJson(v, Merchant.class);
+        String customerCard = intent.getStringExtra(MainActivity.EXTRA_CUSTOMER);
 
 
-        TextView allData = (TextView) findViewById(R.id.all_data);
-        String average = intent.getStringExtra(MainActivity.EXTRA_AVERAGE);
-        allData.setText("The average consumer's purchase from VENDOR costs: " + average+"\n");
-        allData.setTextColor(Color.WHITE);
+        nessieClient.setAPIKey(MainActivity.key);
+        nessieClient.getPurchases(customerCard, new NessieResultsListener() {
+            @Override
+            public void onSuccess(Object result, NessieException e) {
+                if (e == null) {
+                    List<Purchase> a = (List<Purchase>) result;
+                    //Creates the list of purchase history.
+                    float sum = 0;
+                    long count = 0;
+                    for (Purchase x : a) {
+                        if (x.getMerchant_id() == merch.get_id()) {
+                            sum += x.getAmount();
+                            count++;
+                        }
+                    }
+                    float indivAverage = sum / count;
+
+                    TextView test = (TextView) findViewById(R.id.stats_text);
+                    test.setTag(indivAverage);
+
+                    System.err.println(merch.toString());
+
+                    nessieClient.getPurchasem(merch.get_id(), new NessieResultsListener() {
+                        @Override
+                        public void onSuccess(Object result, NessieException f) {
+                            if (f == null) {
+                                List<Purchase> a = (List<Purchase>) result;
+                                float sum = 0;
+                                for (Purchase x : a) {
+                                    sum+= x.getAmount();
+                                }
+                                float overallAv = sum / a.size();
 
 
-        TextView rec = (TextView) findViewById(R.id.recommend);
-        rec.setText("We suggest that you \n");
-        rec.setTextColor(Color.WHITE);
 
 
+
+                                TextView textView = (TextView) findViewById(R.id.stats_text);
+                                float indivAverage = (float) textView.getTag();
+                                StringBuilder yourAverage = new StringBuilder();
+                                yourAverage.append("Your average purchase from " + merch.getName() + " cost: " + indivAverage);
+                                textView.setText(yourAverage.toString());
+                                textView.setTextColor(Color.WHITE);
+
+
+                                TextView allData = (TextView) findViewById(R.id.all_data);
+                                allData.setText("The average consumer's purchase from "+ merch.getName()
+                                                    + " costs: " + overallAv + "\n");
+                                allData.setTextColor(Color.WHITE);
+
+
+                                TextView rec = (TextView) findViewById(R.id.recommend);
+                                if (overallAv >= indivAverage)
+                                    rec.setText("We suggest that you spend less on "+merch.getName()+"!\n");
+                                else
+                                    rec.setText("Good spending habits :)");
+                                rec.setTextColor(Color.WHITE);
+                            } else {
+                                //There was an error. Handle it here
+                                Log.e("Error", f.toString());
+                            }
+                        }
+                    });
+
+                }
+                else {
+                }
+            }
+        });
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

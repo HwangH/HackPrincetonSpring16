@@ -6,8 +6,9 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context="com.example.heesu.mindfulmoney.DisplayStats"
-    android:background="#ffBE80FF"
-    android:textColor="#ffffffff">
+    android:background="#ff3399ff"
+    android:textColor="#ffffffff"
+    android:id="@+id/laying">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
