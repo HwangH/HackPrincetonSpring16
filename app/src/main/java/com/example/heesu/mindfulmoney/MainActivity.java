@@ -35,8 +35,11 @@ public class MainActivity extends AppCompatActivity {
     protected static String key = "f42694af69bea32185ab6de531cff8ab";
     NessieClient nessieClient = NessieClient.getInstance();
     private static String customer = "56c66be6a73e492741507536";
-    private static String customerCard = "56fef93d480cf02f0f88a56d";
-    private static String exampleVendor = "56c66be6a73e492741507624";
+    private static String customerCard = "56c66be7a73e492741508225";
+    private static String[] exampleVendor = {"56c66be6a73e492741507624","56c66be6a73e492741507627",
+        "56c66be6a73e492741507628", "56c66be6a73e492741507629", "56c66be6a73e49274150762a",
+        "56d1c8bc480cf02f0f8880cd", "56d1c8bc480cf02f0f8880d0", "56d1c8bc480cf02f0f8880d5",
+        "56d1c8bc480cf02f0f8880d6", "56c66be6a73e4927415076b3"};
 
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
@@ -58,14 +61,14 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getApplicationContext().getResources().getColor(R.color.colorAccent)));
 
 
-        /*for (int i = 1; i < 10; i++) {
+        for (int i = 1; i < 10; i++) {
             Purchase.Builder nB = new Purchase.Builder();
             Purchase p = nB.amount(i + 0.01)
                     .description("for java")
                     .medium("balance")
                     .purchase_date("2016-04-02")
                     .status("pending")
-                    .merchant(exampleVendor)
+                    .merchant(exampleVendor[i])
                     .build();
             nessieClient.createPurchase(customerCard, p, new NessieResultsListener() {
                     @Override
@@ -76,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
             });
-        }*/
+        }
         nessieClient.getMerchants(new NessieResultsListener() {
             @Override
             public void onSuccess(Object result, NessieException e) {
@@ -101,8 +104,8 @@ public class MainActivity extends AppCompatActivity {
                                 ListView test = (ListView) findViewById(R.id.left_drawer);
                                 ArrayList<Merchant> copy = (ArrayList<Merchant>) test.getTag();
 
-                                for (Purchase x : a) {
-
+                                for (int i = a.size()-1; i >= 0; i--) {
+                                    Purchase x = a.get(i);
                                     Merchant merch = getMerchantName(copy, x.getMerchant_id());
 
                                     TextView newText = (TextView) new TextView(MainActivity.this);
